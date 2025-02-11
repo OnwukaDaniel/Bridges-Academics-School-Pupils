@@ -1,15 +1,15 @@
-package com.bridge.androidtechnicaltest.db;
+package com.bridge.androidtechnicaltest.db
 
-import androidx.room.Dao;
-import androidx.room.Query;
-
-import java.util.List;
-
-import io.reactivex.Single;
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import io.reactivex.Single
 
 @Dao
-public interface PupilDao {
+interface PupilDao {
+    @get:Query("SELECT * FROM Pupils ORDER BY name ASC")
+    val pupils: List<Pupil>
 
-    @Query("SELECT * FROM Pupils ORDER BY name ASC")
-    Single<List<Pupil>> getPupils();
+    @Insert
+    fun insertPupil(pupil: Pupil)
 }

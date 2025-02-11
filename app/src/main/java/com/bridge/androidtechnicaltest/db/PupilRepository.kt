@@ -3,13 +3,13 @@ package com.bridge.androidtechnicaltest.db
 import com.bridge.androidtechnicaltest.network.PupilApi
 import io.reactivex.Single
 
-interface IPupilRepository {
-    fun getOrFetchPupils() : Single<PupilList>
-}
-class PupilRepository(val database: AppDatabase, val pupilApi: PupilApi): IPupilRepository {
+class PupilRepository(private val pupilDao: PupilDao) {
 
-    override fun getOrFetchPupils(): Single<PupilList> {
-        // TODO("Continue with the implementation here")
-        return Single.just(PupilList(mutableListOf()))
+    fun getOrFetchPupils(): List<Pupil> {
+        return pupilDao.pupils
+    }
+
+    fun insertPupil(pupil: Pupil){
+        return pupilDao.insertPupil(pupil)
     }
 }

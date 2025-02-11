@@ -8,4 +8,12 @@
 
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
+    <string name="pupil_image">pupil_image</string>
+    <string name="pupil_delete">pupil_delete</string>
+    <string name="add_pupil">\'Add Pupil</string>
+    <string name="pupil_s_name">Pupil\'s name:</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="pupil_s_country">Pupil\'s Country</string>
+    <string name="pick_image">Pick image</string>
 </resources>
