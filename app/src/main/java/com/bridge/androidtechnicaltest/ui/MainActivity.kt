@@ -2,18 +2,14 @@ package com.bridge.androidtechnicaltest.ui
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -29,7 +25,6 @@ import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
 import com.bridge.androidtechnicaltest.live_data.NetworkLiveData
 import com.bridge.androidtechnicaltest.network.PupilApi
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -40,30 +35,15 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallback,
     PupilDeleteCallback {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private lateinit var dialogImageView: ImageView
     private val sharedViewModel: PupilViewModel by viewModels()
     private var adapter = PupilsRecyclerViewAdapter()
     private lateinit var viewModel: PupilViewModel
-    private var uri: Uri? = null
 
     @Inject
     lateinit var api: PupilApi
 
     @Inject
     lateinit var db: AppDatabase
-
-
-    private var pickImageLauncher: ActivityResultLauncher<String> = registerForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        if (uri != null) {
-            this.uri = uri
-            Glide.with(binding.root).load(this.uri!!).centerCrop().into(dialogImageView)
-            message("Image selected.")
-        } else {
-            message("No image selected.")
-        }
-    }
 
     @SuppressLint("NotifyDataSetChanged")
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,18 +61,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         val networkLiveData = NetworkLiveData(applicationContext)
         networkLiveData.observe(this) { isConnected ->
             if (isConnected) {
-                message("Connected to the internet")
+                viewModel.checkCacheAndUpload()
             } else {
                 message("No internet connection")
             }
         }
-
         getData()
     }
 
     private fun getData() {
         viewModel.allPupils.observe(this@MainActivity) { pupils ->
             updateUI(pupils)
+            viewModel.checkCacheAndUpload()
         }
         viewModel.error.observe(this@MainActivity) { msg ->
             message(msg)
@@ -110,16 +90,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
     @SuppressLint("NotifyDataSetChanged", "MissingInflatedId")
     override fun onClick(v: View?) {
         if (v?.id == R.id.btn_add_pupil) {
+            var imageUrl: String
             val inflater = LayoutInflater.from(this)
             val dialogView: View = inflater.inflate(R.layout.dialog_add_pupil, null)
 
             val nameView = dialogView.findViewById<EditText>(R.id.dialog_pupil_name)
             val btnAdd = dialogView.findViewById<Button>(R.id.dialog_btn_add_pupil)
-            dialogImageView = dialogView.findViewById(R.id.dialog_add_image)
+            val pickImage = dialogView.findViewById<CardView>(R.id.pick_dummy_image)
             val countryView = dialogView.findViewById<EditText>(R.id.dialog_pupil_country)
             val logView = dialogView.findViewById<EditText>(R.id.dialog_pupil_log)
             val latView = dialogView.findViewById<EditText>(R.id.dialog_pupil_lat)
-            dialogImageView.setOnClickListener { openImagePicker() }
+            val imageUrlInput = dialogView.findViewById<EditText>(R.id.dialog_pupil_url)
             dialogView.setPadding(46, 46, 46, 46)
             val dialog: AlertDialog =
                 AlertDialog.Builder(this).setTitle("Add new pupil").setView(dialogView)
@@ -127,21 +108,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
                         dialogInterface.dismiss()
                     }.create()
             dialog.show()
+            pickImage.setOnClickListener{
+                imageUrlInput.setText("https://thumbs.dreamstime.com/z/d-character-schoolboy-backpack-ready-to-school-back-concept-pupil-isolated-realistic-boy-going-high-quality-photo-ai-349857457.jpg")
+            }
             btnAdd.setOnClickListener {
                 val name: String = nameView.getText().toString().trim()
                 val country: String = countryView.getText().toString().trim()
                 val log: String = logView.getText().toString().trim()
                 val lat: String = latView.getText().toString().trim()
-                val valid = validateInput(name, country, log, lat)
+                imageUrl = imageUrlInput.getText().toString().trim()
+                val valid = validateInput(name, country, log, lat, imageUrl)
                 if (valid) {
-                    viewModel.addPupil(name, country, log, lat)
+                    viewModel.addPupil(name, country, log, lat, imageUrl)
                     dialog.dismiss()
                 }
             }
         }
     }
 
-    private fun validateInput(name: String, country: String, log: String, lat: String): Boolean {
+    private fun validateInput(
+        name: String,
+        country: String,
+        log: String,
+        lat: String,
+        imageUrl: String
+    ): Boolean {
         if (name.isEmpty()) {
             message("Name can't be empty")
             return false
@@ -158,7 +149,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
             message("Latitude can't be empty")
             return false
         }
-        if (uri == null) {
+        if (imageUrl.isEmpty()) {
             message("Image can't be empty")
             return false
         }
@@ -167,10 +158,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
 
     private fun message(msg: String) {
         Snackbar.make(binding.root, msg, Snackbar.LENGTH_LONG).show()
-    }
-
-    private fun openImagePicker() {
-        pickImageLauncher.launch("image/*")
     }
 
     override fun onPupilClick(pupil: Pupil) {

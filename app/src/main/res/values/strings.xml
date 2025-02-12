@@ -12,6 +12,7 @@
     <string name="data_reset">Api Data Reset</string>
     <string name="data_reset_failed">Data Reset Failed</string>
     <string name="pupil_image">pupil_image</string>
+    <string name="pupil_s_image">Select pupil image</string>
     <string name="pupil_delete">pupil_delete</string>
     <string name="add_pupil">\Add Pupil</string>
     <string name="pupil_s_name">Pupil\'s name:</string>

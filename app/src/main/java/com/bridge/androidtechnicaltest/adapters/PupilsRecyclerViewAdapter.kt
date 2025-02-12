@@ -12,8 +12,7 @@ import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
-import com.bumptech.glide.Glide
-import java.io.File
+import com.squareup.picasso.Picasso
 import java.util.Locale
 
 class PupilsRecyclerViewAdapter :
@@ -31,11 +30,9 @@ class PupilsRecyclerViewAdapter :
 
         fun setData(position: Int) {
             val data = dataset[position]
-            println("Glide ****************** ${data.image}")
-            Glide.with(context)
-                .load(File(data.image))
-                .centerCrop()
-                .error(R.drawable.error_image)
+            Picasso.get()
+                .load(data.image)
+                .placeholder(R.drawable.error_image)
                 .into(image)
             name.text = data.name
             country.text = data.country.uppercase(Locale.getDefault())

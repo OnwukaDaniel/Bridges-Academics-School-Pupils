@@ -10,6 +10,9 @@ import io.reactivex.Single
 
 @Dao
 interface PupilDao {
+    @Query("SELECT * FROM pupils WHERE pupil_id = :pupilId LIMIT 1")
+    fun getPupilById(pupilId: Long): Pupil?
+
     @get:Query("SELECT * FROM Pupils ORDER BY name ASC")
     val pupils: LiveData<List<Pupil>>
 

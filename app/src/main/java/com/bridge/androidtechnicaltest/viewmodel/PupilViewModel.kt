@@ -30,6 +30,7 @@ class PupilViewModel @Inject constructor(
         country: String,
         log: String,
         lat: String,
+        imageUrl: String,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val pupil = Pupil(
@@ -38,7 +39,7 @@ class PupilViewModel @Inject constructor(
                 country = country,
                 longitude = log.toDouble(),
                 latitude = lat.toDouble(),
-                image = "https://en.wikipedia.org/wiki/File:Image_created_with_a_mobile_phone.png",
+                image = imageUrl,
                 uploaded = false
             )
             repo.insertPupil(pupil)
@@ -102,10 +103,15 @@ class PupilViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                _error.postValue("Pupil added successfully");
+                _error.postValue("Pupil deleted successfully");
             }, { error ->
                 _error.postValue("Error deleting pupil: $error")
             })
     }
 
+    fun checkCacheAndUpload() {
+        for (datum in allPupils.value?: arrayListOf()) {
+            if(!datum.uploaded) uploadPupil(datum)
+        }
+    }
 }
