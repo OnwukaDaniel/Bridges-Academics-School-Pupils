@@ -69,7 +69,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
             adapter.dataset = pupils
             adapter.notifyDataSetChanged()
         }
-        //viewModel = PupilViewModel(this)
     }
 
     @SuppressLint("NotifyDataSetChanged", "MissingInflatedId")
@@ -106,7 +105,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         }
     }
 
-    fun validateInput(name: String, country: String, log: String, lat: String): Boolean {
+    private fun validateInput(name: String, country: String, log: String, lat: String): Boolean {
         if (name.isEmpty()) {
             message("Name can't be empty")
             return false

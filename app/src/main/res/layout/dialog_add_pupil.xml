@@ -57,6 +57,7 @@
     <EditText
         android:id="@+id/dialog_pupil_log"
         android:layout_width="match_parent"
+        android:inputType="number"
         android:layout_height="wrap_content" />
 
     <View
@@ -72,6 +73,7 @@
     <EditText
         android:id="@+id/dialog_pupil_lat"
         android:layout_width="match_parent"
+        android:inputType="number"
         android:layout_height="wrap_content" />
 
     <View
