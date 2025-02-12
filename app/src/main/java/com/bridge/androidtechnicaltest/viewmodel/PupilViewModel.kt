@@ -1,21 +1,30 @@
 package com.bridge.androidtechnicaltest.viewmodel
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.db.PupilRepository
+import com.bridge.androidtechnicaltest.db.PupilUploadDto
+import com.bridge.androidtechnicaltest.network.PupilApi
+import dagger.hilt.android.lifecycle.HiltViewModel
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
+@HiltViewModel
+class PupilViewModel @Inject constructor(
+    private val repo: PupilRepository,
+    private val api: PupilApi
+) : ViewModel() {
     private var _allPupils = repo.getOrFetchPupils()
     val allPupils: LiveData<List<Pupil>> get() = _allPupils
     private val _error: MutableLiveData<String> = MutableLiveData()
+    val error: MutableLiveData<String> get() = _error
     private val _pupilData = MutableLiveData<Pupil>()
     val pupilData: LiveData<Pupil> get() = _pupilData
 
@@ -24,8 +33,6 @@ class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
         country: String,
         log: String,
         lat: String,
-        uri: Uri?,
-        contentResolver: ContentResolver
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val pupil = Pupil(
@@ -34,10 +41,11 @@ class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
                 country = country,
                 longitude = log.toDouble(),
                 latitude = lat.toDouble(),
-                image = (getRealPathFromUri(contentResolver, uri!!)?: "").toString(),
-                uploaded = false,
+                image = "https://en.wikipedia.org/wiki/File:Image_created_with_a_mobile_phone.png",
+                uploaded = false
             )
             repo.insertPupil(pupil)
+            uploadPupil(pupil)
         }
     }
 
@@ -51,13 +59,31 @@ class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
         }
     }
 
-    private fun getRealPathFromUri(contentResolver: ContentResolver, uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null) ?: return null
-        val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor.moveToFirst()
-        val filePath = cursor.getString(columnIndex)
-        cursor.close()
-        return filePath
+    @SuppressLint("CheckResult")
+    fun fetchPupils() {
+        viewModelScope.launch(Dispatchers.IO) {
+            api.getPupils().subscribe({ response ->
+                viewModelScope.launch(Dispatchers.IO) {
+                    repo.insertPupils(response.items)
+                }
+            }, { error ->
+                _allPupils = repo.getOrFetchPupils()
+                _error.postValue("$error. Loading data from local DB")
+            })
+        }
+    }
+
+    @SuppressLint("CheckResult")
+    fun uploadPupil(pupil: Pupil) {
+        val pupilDto = PupilUploadDto.fromPupil(pupil)
+        api.addPupil(pupilDto)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                _error.postValue("Pupil added successfully");
+            }, { error ->
+                println("Error adding pupil: $error")
+                _error.postValue("Error adding pupil: $error")
+            })
     }
 }

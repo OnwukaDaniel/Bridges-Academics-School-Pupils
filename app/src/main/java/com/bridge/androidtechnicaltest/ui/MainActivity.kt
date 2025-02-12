@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.adapters.PupilsRecyclerViewAdapter
@@ -24,11 +25,16 @@ import com.bridge.androidtechnicaltest.db.PupilRepository
 import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
 import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
+import com.bridge.androidtechnicaltest.network.PupilApi
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallback,
     PupilDeleteCallback {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -37,6 +43,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
     private var adapter = PupilsRecyclerViewAdapter()
     private lateinit var viewModel: PupilViewModel
     private var uri: Uri? = null
+
+    @Inject
+    lateinit var api: PupilApi
+
+    @Inject
+    lateinit var db: AppDatabase
 
 
     private var pickImageLauncher: ActivityResultLauncher<String> = registerForActivityResult(
@@ -55,18 +67,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val database = AppDatabase.getInstance(this)
-        val repo = PupilRepository(database.pupilDao())
-        val factory = PupilViewModelFactory(repo)
+        val repo = PupilRepository(db.pupilDao())
+        val factory = PupilViewModelFactory(repo, api)
         viewModel = ViewModelProvider(this, factory)[PupilViewModel::class.java]
-
+        viewModel.fetchPupils()
         binding.btnAddPupil.setOnClickListener(this)
         adapter.pupilClickCallback = this
         adapter.pupilDeleteCallback = this
         binding.rvPupils.adapter = adapter
         binding.rvPupils.layoutManager = GridLayoutManager(applicationContext, 2)
-        viewModel.allPupils.observe(this) { pupils ->
-            adapter.dataset = pupils
+        getData()
+    }
+
+    private fun getData() {
+        viewModel.allPupils.observe(this@MainActivity) { pupils ->
+            updateUI(pupils)
+        }
+        viewModel.error.observe(this@MainActivity) { msg ->
+            message(msg)
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun updateUI(items: List<Pupil>) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            adapter.dataset = items
             adapter.notifyDataSetChanged()
         }
     }
@@ -98,7 +123,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
                 val lat: String = latView.getText().toString().trim()
                 val valid = validateInput(name, country, log, lat)
                 if (valid) {
-                    viewModel.addPupil(name, country, log, lat, uri, this.contentResolver)
+                    viewModel.addPupil(name, country, log, lat)
                     dialog.dismiss()
                 }
             }

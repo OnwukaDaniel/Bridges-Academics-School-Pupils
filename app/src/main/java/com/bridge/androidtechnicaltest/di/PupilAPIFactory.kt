@@ -45,7 +45,7 @@ object PupilAPIFactory {
 object DatabaseFactory {
 
     fun getDBInstance(context: Context) =
-            Room.databaseBuilder(context, AppDatabase::class.java, "TechnicalTestDb")
+            Room.databaseBuilder(context, AppDatabase::class.java, "pupil_database")
                     .fallbackToDestructiveMigration()
                     .build()
 }

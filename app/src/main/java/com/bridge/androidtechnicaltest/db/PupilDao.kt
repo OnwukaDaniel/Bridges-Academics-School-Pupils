@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import io.reactivex.Single
 
@@ -11,6 +12,9 @@ import io.reactivex.Single
 interface PupilDao {
     @get:Query("SELECT * FROM Pupils ORDER BY name ASC")
     val pupils: LiveData<List<Pupil>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertPupils(pupils: List<Pupil>)
 
     @Insert
     fun insertPupil(pupil: Pupil)

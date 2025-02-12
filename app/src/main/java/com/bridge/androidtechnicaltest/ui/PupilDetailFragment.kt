@@ -16,15 +16,25 @@ import com.bridge.androidtechnicaltest.db.AppDatabase
 import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.db.PupilRepository
 import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
+import com.bridge.androidtechnicaltest.network.PupilApi
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class PupilDetailFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentPupildetailBinding
     private lateinit var viewModel: PupilViewModel
     private val sharedViewModel: PupilViewModel by activityViewModels()
     private lateinit var pupil: Pupil
+
+    @Inject
+    lateinit var api: PupilApi
+
+    @Inject
+    lateinit var db: AppDatabase
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -57,7 +67,7 @@ class PupilDetailFragment : Fragment(), View.OnClickListener {
         super.onResume()
         val database = AppDatabase.getInstance(requireContext())
         val repo = PupilRepository(database.pupilDao())
-        val factory = PupilViewModelFactory(repo)
+        val factory = PupilViewModelFactory(repo, api)
         viewModel = ViewModelProvider(this, factory)[PupilViewModel::class.java]
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
