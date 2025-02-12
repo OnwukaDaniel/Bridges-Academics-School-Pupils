@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="true"
+    android:focusable="true"
     android:background="?attr/backgroundColor"
     android:orientation="vertical">
 
@@ -43,15 +44,6 @@
                 android:layout_height="0dp"
                 android:layout_width="0dp"
                 android:layout_weight="1"/>
-
-            <ImageView
-                android:id="@+id/detail_delete"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginHorizontal="16dp"
-                android:contentDescription="@string/pupil_delete"
-                android:src="@drawable/delete"
-                app:tint="@color/white" />
 
         </LinearLayout>
 
