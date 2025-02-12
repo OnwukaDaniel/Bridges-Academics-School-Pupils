@@ -5,8 +5,10 @@ import com.bridge.androidtechnicaltest.db.PupilList
 import io.reactivex.Completable
 import io.reactivex.Single
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PupilApi {
@@ -16,4 +18,6 @@ interface PupilApi {
     @POST("pupils")
     fun addPupil(@Body pupil: PupilUploadDto): Completable
 
+    @DELETE("pupils/{id}")
+    fun deletePupil(@Path("id") pupilId: Int): Completable
 }

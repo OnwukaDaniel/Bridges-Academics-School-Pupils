@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -25,6 +26,7 @@ import com.bridge.androidtechnicaltest.db.PupilRepository
 import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
 import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
+import com.bridge.androidtechnicaltest.live_data.NetworkLiveData
 import com.bridge.androidtechnicaltest.network.PupilApi
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
@@ -76,6 +78,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         adapter.pupilDeleteCallback = this
         binding.rvPupils.adapter = adapter
         binding.rvPupils.layoutManager = GridLayoutManager(applicationContext, 2)
+        val networkLiveData = NetworkLiveData(applicationContext)
+        networkLiveData.observe(this) { isConnected ->
+            if (isConnected) {
+                message("Connected to the internet")
+            } else {
+                message("No internet connection")
+            }
+        }
+
         getData()
     }
 

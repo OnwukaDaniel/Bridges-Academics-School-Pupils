@@ -1,9 +1,6 @@
 package com.bridge.androidtechnicaltest.viewmodel
 
 import android.annotation.SuppressLint
-import android.content.ContentResolver
-import android.net.Uri
-import android.provider.MediaStore
 import androidx.lifecycle.*
 import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.db.PupilRepository
@@ -56,6 +53,7 @@ class PupilViewModel @Inject constructor(
     fun deletePupilById(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             repo.deletePupil(id)
+            deletePupilApi(id.toInt())
         }
     }
 
@@ -63,8 +61,19 @@ class PupilViewModel @Inject constructor(
     fun fetchPupils() {
         viewModelScope.launch(Dispatchers.IO) {
             api.getPupils().subscribe({ response ->
+                val newList = response.items.map { pupil ->
+                    Pupil(
+                        pupilId = pupil.pupilId,
+                        name = pupil.name,
+                        country = pupil.country,
+                        longitude = pupil.longitude,
+                        latitude = pupil.latitude,
+                        image = pupil.image,
+                        uploaded = true
+                    )
+                }
                 viewModelScope.launch(Dispatchers.IO) {
-                    repo.insertPupils(response.items)
+                    repo.insertPupils(newList)
                 }
             }, { error ->
                 _allPupils = repo.getOrFetchPupils()
@@ -86,4 +95,17 @@ class PupilViewModel @Inject constructor(
                 _error.postValue("Error adding pupil: $error")
             })
     }
+
+    @SuppressLint("CheckResult")
+    fun deletePupilApi(pupilId: Int) {
+        api.deletePupil(pupilId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                _error.postValue("Pupil added successfully");
+            }, { error ->
+                _error.postValue("Error deleting pupil: $error")
+            })
+    }
+
 }
