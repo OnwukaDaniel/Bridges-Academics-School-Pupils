@@ -57,7 +57,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         adapter.pupilClickCallback = this
         adapter.pupilDeleteCallback = this
         binding.rvPupils.adapter = adapter
-        binding.rvPupils.layoutManager = GridLayoutManager(applicationContext, 2)
+        val layoutManager = GridLayoutManager(applicationContext, 2)
+        binding.rvPupils.layoutManager = layoutManager
         val networkLiveData = NetworkLiveData(applicationContext)
         networkLiveData.observe(this) { isConnected ->
             if (isConnected) {
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         }
     }
 
-    @SuppressLint("NotifyDataSetChanged", "MissingInflatedId")
+    @SuppressLint("NotifyDataSetChanged", "MissingInflatedId", "SetTextI18n")
     override fun onClick(v: View?) {
         if (v?.id == R.id.btn_add_pupil) {
             var imageUrl: String
@@ -108,7 +109,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
                         dialogInterface.dismiss()
                     }.create()
             dialog.show()
-            pickImage.setOnClickListener{
+            pickImage.setOnClickListener {
                 imageUrlInput.setText("https://thumbs.dreamstime.com/z/d-character-schoolboy-backpack-ready-to-school-back-concept-pupil-isolated-realistic-boy-going-high-quality-photo-ai-349857457.jpg")
             }
             btnAdd.setOnClickListener {
@@ -127,11 +128,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
     }
 
     private fun validateInput(
-        name: String,
-        country: String,
-        log: String,
-        lat: String,
-        imageUrl: String
+        name: String, country: String, log: String, lat: String, imageUrl: String
     ): Boolean {
         if (name.isEmpty()) {
             message("Name can't be empty")
@@ -163,9 +160,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
     override fun onPupilClick(pupil: Pupil) {
         val frag = PupilDetailFragment()
         sharedViewModel.setPupil(pupil)
-        supportFragmentManager.beginTransaction()
-            .addToBackStack("images").replace(R.id.main_layout, frag)
-            .commit()
+        supportFragmentManager.beginTransaction().addToBackStack("images")
+            .replace(R.id.main_layout, frag).commit()
     }
 
     override fun onDeleteClicked(pupil: Pupil) {

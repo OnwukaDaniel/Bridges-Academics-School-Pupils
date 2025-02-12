@@ -118,7 +118,7 @@ class PupilViewModel @Inject constructor(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                _error.postValue("Pupil deleted successfully");
+                _error.postValue("Pupil deleted successfully")
             }, { error ->
                 _error.postValue("Error deleting pupil: $error")
             })
