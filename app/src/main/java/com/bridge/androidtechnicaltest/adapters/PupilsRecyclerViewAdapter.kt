@@ -14,6 +14,7 @@ import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
 import com.bumptech.glide.Glide
 import java.io.File
+import java.util.Locale
 
 class PupilsRecyclerViewAdapter :
     RecyclerView.Adapter<PupilsRecyclerViewAdapter.PupilsViewModel>() {
@@ -30,9 +31,6 @@ class PupilsRecyclerViewAdapter :
 
         fun setData(position: Int) {
             val data = dataset[position]
-//            if(data.image.isNotBlank()) {
-//
-//            }
             println("Glide ****************** ${data.image}")
             Glide.with(context)
                 .load(File(data.image))
@@ -40,7 +38,7 @@ class PupilsRecyclerViewAdapter :
                 .error(R.drawable.error_image)
                 .into(image)
             name.text = data.name
-            country.text = data.country
+            country.text = data.country.uppercase(Locale.getDefault())
             itemView.setOnClickListener {
                 pupilClickCallback.onPupilClick(data)
             }

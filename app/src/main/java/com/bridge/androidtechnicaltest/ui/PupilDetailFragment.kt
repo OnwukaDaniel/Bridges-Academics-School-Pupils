@@ -1,6 +1,7 @@
 package com.bridge.androidtechnicaltest.ui
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,15 +9,22 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProvider
 import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.databinding.FragmentPupildetailBinding
+import com.bridge.androidtechnicaltest.db.AppDatabase
+import com.bridge.androidtechnicaltest.db.Pupil
+import com.bridge.androidtechnicaltest.db.PupilRepository
+import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
 import java.io.File
 
 class PupilDetailFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentPupildetailBinding
+    private lateinit var viewModel: PupilViewModel
     private val sharedViewModel: PupilViewModel by activityViewModels()
+    private lateinit var pupil: Pupil
 
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
@@ -26,6 +34,7 @@ class PupilDetailFragment : Fragment(), View.OnClickListener {
     ): View {
         binding = FragmentPupildetailBinding.inflate(inflater, container, false)
         sharedViewModel.pupilData.observe(viewLifecycleOwner) { pupil ->
+            this.pupil = pupil
             binding.pupilId.text = pupil.pupilId.toString()
             binding.pupilName.text = pupil.name
             binding.country.text = pupil.country
@@ -40,11 +49,16 @@ class PupilDetailFragment : Fragment(), View.OnClickListener {
             };
         }
         binding.pupilDetailsBack.setOnClickListener(this)
+        binding.detailDelete.setOnClickListener(this)
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
+        val database = AppDatabase.getInstance(requireContext())
+        val repo = PupilRepository(database.pupilDao())
+        val factory = PupilViewModelFactory(repo)
+        viewModel = ViewModelProvider(this, factory)[PupilViewModel::class.java]
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().supportFragmentManager.popBackStack()
@@ -56,7 +70,25 @@ class PupilDetailFragment : Fragment(), View.OnClickListener {
         if (v != null) {
             if(v.id == R.id.pupil_details_back) {
                 requireActivity().supportFragmentManager.popBackStack()
-            }
+            } else if(v.id == R.id.detail_delete) deleteDialog()
         }
+    }
+
+    private fun deleteDialog() {
+        val inflater = LayoutInflater.from(context)
+        val dialogView: View = inflater.inflate(R.layout.dialog_delete_confirmation, null)
+        dialogView.setPadding(46, 46, 46, 46)
+        val dialog: AlertDialog =
+            AlertDialog.Builder(context)
+                .setView(dialogView)
+                .setNegativeButton("Cancel") { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                }
+                .setPositiveButton("Delete") { dialogInterface, _ ->
+                    dialogInterface.dismiss()
+                    viewModel.deletePupilById(pupil.pupilId)
+                    requireActivity().supportFragmentManager.popBackStack()
+                }.create()
+        dialog.show()
     }
 }
