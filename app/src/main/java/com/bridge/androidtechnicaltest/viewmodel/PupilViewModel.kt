@@ -13,22 +13,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
-    private var _allPupils = MutableLiveData<List<Pupil>>()
+    private var _allPupils = repo.getOrFetchPupils()
     val allPupils: LiveData<List<Pupil>> get() = _allPupils
     private val _error: MutableLiveData<String> = MutableLiveData()
-    val error: MutableLiveData<String> get() = MutableLiveData()
     private val _pupilData = MutableLiveData<Pupil>()
     val pupilData: LiveData<Pupil> get() = _pupilData
-
-    init {
-        fetchPupils()
-    }
-
-    private fun fetchPupils() {
-        viewModelScope.launch(Dispatchers.IO) {
-            _allPupils.postValue(repo.getOrFetchPupils())
-        }
-    }
 
     fun addPupil(
         name: String,
@@ -46,31 +35,20 @@ class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
                 longitude = log.toDouble(),
                 latitude = lat.toDouble(),
                 image = (getRealPathFromUri(contentResolver, uri!!)?: "").toString(),
+                uploaded = false,
             )
             repo.insertPupil(pupil)
         }
-        fetchPupils()
-    }
-
-    fun setError(msg: String) {
-        _error.postValue(msg)
     }
 
     fun setPupil(pupil: Pupil) {
         _pupilData.value = pupil
     }
 
-    private fun getRealPathFromURI(contentResolver: ContentResolver, contentUri: Uri): String {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(contentUri, projection, null, null, null)
-
-        cursor?.use {
-            val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            if (it.moveToFirst()) {
-                return it.getString(columnIndex)
-            }
+    fun deletePupilById(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repo.deletePupil(id)
         }
-        return contentUri.toString()
     }
 
     private fun getRealPathFromUri(contentResolver: ContentResolver, uri: Uri): String? {
@@ -82,6 +60,4 @@ class PupilViewModel(private val repo: PupilRepository) : ViewModel() {
         cursor.close()
         return filePath
     }
-
-
 }

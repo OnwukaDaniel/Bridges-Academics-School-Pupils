@@ -2,24 +2,62 @@
 <androidx.constraintlayout.widget.ConstraintLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/main_layout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
+	<androidx.appcompat.widget.Toolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:background="@color/colorPrimary"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<View
+				android:layout_width="16dp"
+				android:layout_height="0dp" />
+
+			<TextView
+				style="@style/TextDetail"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/pupils"
+				android:textColor="@color/white"
+				android:textSize="20sp"
+				android:textStyle="bold" />
+
+		</LinearLayout>
+
+	</androidx.appcompat.widget.Toolbar>
+
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/rv_pupils"
 		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
 		android:layout_margin="16dp"
-		android:layout_height="match_parent"/>
+		app:layout_constraintTop_toBottomOf="@+id/toolbar"
+		tools:layout_editor_absoluteX="16dp" />
 
-	<Button
+	<TextView
 		android:id="@+id/btn_add_pupil"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="16dp"
-		android:text="@string/add_pupil"
+		android:gravity="center"
+		android:padding="12dp"
 		android:background="@color/colorPrimary"
-		android:textColor="#ffffffff"
-		app:layout_constraintBottom_toBottomOf="@+id/rv_pupils" />
+		android:textColor="@color/white"
+		android:text="@string/add_pupil"
+		android:layout_margin="16dp"
+		app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

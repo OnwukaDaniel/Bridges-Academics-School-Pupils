@@ -3,6 +3,7 @@
 
     <string name="pupil_detail_id">Id</string>
     <string name="pupil_detail">Pupil Details</string>
+    <string name="pupils">Pupils</string>
     <string name="pupil_detail_name">Name</string>
     <string name="pupil_detail_country">Country</string>
     <string name="pupil_detail_location">Location</string>
@@ -12,11 +13,13 @@
     <string name="data_reset_failed">Data Reset Failed</string>
     <string name="pupil_image">pupil_image</string>
     <string name="pupil_delete">pupil_delete</string>
-    <string name="add_pupil">\'Add Pupil</string>
+    <string name="add_pupil">\Add Pupil</string>
     <string name="pupil_s_name">Pupil\'s name:</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="pupil_s_country">Pupil\'s Country</string>
     <string name="pick_image">Pick image</string>
     <string name="back_button">back button</string>
+    <string name="delete">Delete?</string>
+    <string name="are_you_sure_you_want_to_delete_this_pupil_s_data">Are you sure you want to delete this pupil\'s data</string>
 </resources>

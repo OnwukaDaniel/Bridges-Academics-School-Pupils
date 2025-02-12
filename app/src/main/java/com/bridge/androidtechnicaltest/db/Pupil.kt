@@ -23,7 +23,10 @@ class Pupil(
     val latitude: Double,
 
     @ColumnInfo(name = "longitude")
-    val longitude: Double
+    val longitude: Double,
+
+    @ColumnInfo(name = "uploaded")
+    val uploaded: Boolean,
 )
 
 class PupilList(

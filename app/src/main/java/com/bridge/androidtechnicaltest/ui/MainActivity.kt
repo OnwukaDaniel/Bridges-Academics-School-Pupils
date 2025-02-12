@@ -23,12 +23,14 @@ import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.db.PupilRepository
 import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
 import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
+import com.bridge.androidtechnicaltest.interfaces.PupilDeleteCallback
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallback {
+class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallback,
+    PupilDeleteCallback {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private lateinit var dialogImageView: ImageView
     private val sharedViewModel: PupilViewModel by viewModels()
@@ -60,6 +62,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
 
         binding.btnAddPupil.setOnClickListener(this)
         adapter.pupilClickCallback = this
+        adapter.pupilDeleteCallback = this
         binding.rvPupils.adapter = adapter
         binding.rvPupils.layoutManager = GridLayoutManager(applicationContext, 2)
         viewModel.allPupils.observe(this) { pupils ->
@@ -141,5 +144,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallba
         supportFragmentManager.beginTransaction()
             .addToBackStack("images").replace(R.id.main_layout, frag)
             .commit()
+    }
+
+    override fun onDeleteClicked(pupil: Pupil) {
+        viewModel.deletePupilById(pupil.pupilId)
     }
 }
