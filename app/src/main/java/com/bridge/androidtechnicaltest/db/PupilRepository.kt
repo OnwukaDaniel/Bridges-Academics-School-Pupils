@@ -22,4 +22,6 @@ class PupilRepository @Inject constructor(
     fun deletePupil(id: Long){
         return pupilDao.deletePupilById(id)
     }
+
+    fun updatePupil(pupil: Pupil) = pupilDao.updatePupil(pupil)
 }

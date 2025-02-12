@@ -63,6 +63,8 @@ class PupilViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             api.getPupils().subscribe({ response ->
                 val newList = response.items.map { pupil ->
+                    println("adding pupil: ************ ${pupil.name} ** ${pupil.image} ** ${pupil.country} ** ${pupil.pupilId}** ${pupil.latitude} ** ${pupil.longitude}")
+
                     Pupil(
                         pupilId = pupil.pupilId,
                         name = pupil.name,
@@ -86,11 +88,24 @@ class PupilViewModel @Inject constructor(
     @SuppressLint("CheckResult")
     fun uploadPupil(pupil: Pupil, showNotice: Boolean = true) {
         val pupilDto = PupilUploadDto.fromPupil(pupil)
+
         api.addPupil(pupilDto)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                if(showNotice) _error.postValue("Pupil added successfully");
+                if (showNotice) _error.postValue("Pupil added successfully")
+                val newPupil = Pupil(
+                    pupilId = pupil.pupilId,
+                    name = pupil.name,
+                    country = pupil.country,
+                    longitude = pupil.longitude,
+                    latitude = pupil.latitude,
+                    image = pupil.image,
+                    uploaded = true
+                )
+                viewModelScope.launch(Dispatchers.IO) {
+                    repo.updatePupil(newPupil)
+                }
             }, { error ->
                 println("Error adding pupil: $error")
                 _error.postValue("Error adding pupil: $error")
@@ -110,8 +125,8 @@ class PupilViewModel @Inject constructor(
     }
 
     fun checkCacheAndUpload() {
-        for (datum in allPupils.value?: arrayListOf()) {
-            if(!datum.uploaded) uploadPupil(datum, false)
+        for (datum in allPupils.value ?: arrayListOf()) {
+            if (!datum.uploaded) uploadPupil(datum, false)
         }
     }
 }

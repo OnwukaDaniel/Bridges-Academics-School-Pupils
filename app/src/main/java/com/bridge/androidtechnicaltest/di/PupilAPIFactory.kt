@@ -21,8 +21,8 @@ object PupilAPIFactory {
         builder.writeTimeout(API_TIMEOUT, TimeUnit.SECONDS)
         builder.connectTimeout(API_TIMEOUT, TimeUnit.SECONDS)
 
-        val requestId = "dda7feeb-20af-415e-887e-afc43f245624"
-        val userAgent = "Bridge Android Tech Test"
+        val requestId = "75debac8-0cce-4519-b65e-b9b8706ead4a"
+        val userAgent = "Application-Name/1.0.0 (Operating System Name 1.0.0)"
         val requestInterceptor = Interceptor { chain ->
             val originalRequest = chain.request()
             val newRequest = originalRequest.newBuilder()
