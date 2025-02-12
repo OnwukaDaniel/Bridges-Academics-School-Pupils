@@ -19,16 +19,19 @@ import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.adapters.PupilsRecyclerViewAdapter
 import com.bridge.androidtechnicaltest.databinding.ActivityMainBinding
 import com.bridge.androidtechnicaltest.db.AppDatabase
+import com.bridge.androidtechnicaltest.db.Pupil
 import com.bridge.androidtechnicaltest.db.PupilRepository
 import com.bridge.androidtechnicaltest.db.PupilViewModelFactory
+import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bridge.androidtechnicaltest.viewmodel.PupilViewModel
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 
 
-class MainActivity : AppCompatActivity(), View.OnClickListener {
+class MainActivity : AppCompatActivity(), View.OnClickListener, PupilClickCallback {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private lateinit var dialogImageView: ImageView
+    private val sharedViewModel: PupilViewModel by viewModels()
     private var adapter = PupilsRecyclerViewAdapter()
     private lateinit var viewModel: PupilViewModel
     private var uri: Uri? = null
@@ -56,6 +59,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         viewModel = ViewModelProvider(this, factory)[PupilViewModel::class.java]
 
         binding.btnAddPupil.setOnClickListener(this)
+        adapter.pupilClickCallback = this
         binding.rvPupils.adapter = adapter
         binding.rvPupils.layoutManager = GridLayoutManager(applicationContext, 2)
         viewModel.allPupils.observe(this) { pupils ->
@@ -92,7 +96,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 val lat: String = latView.getText().toString().trim()
                 val valid = validateInput(name, country, log, lat)
                 if (valid) {
-                    viewModel.addPupil(name, country, log, lat, uri)
+                    viewModel.addPupil(name, country, log, lat, uri, this.contentResolver)
                     dialog.dismiss()
                 }
             }
@@ -129,5 +133,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun openImagePicker() {
         pickImageLauncher.launch("image/*")
+    }
+
+    override fun onPupilClick(pupil: Pupil) {
+        val frag = PupilDetailFragment()
+        sharedViewModel.setPupil(pupil)
+        supportFragmentManager.beginTransaction()
+            .addToBackStack("images").replace(R.id.main_layout, frag)
+            .commit()
     }
 }

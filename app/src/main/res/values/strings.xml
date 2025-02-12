@@ -2,8 +2,10 @@
     <string name="app_name">Android Technical Test</string>
 
     <string name="pupil_detail_id">Id</string>
+    <string name="pupil_detail">Pupil Details</string>
     <string name="pupil_detail_name">Name</string>
     <string name="pupil_detail_country">Country</string>
+    <string name="pupil_detail_location">Location</string>
     <string name="sync">Sync</string>
 
     <string name="data_reset">Api Data Reset</string>
@@ -16,4 +18,5 @@
     <string name="longitude">Longitude</string>
     <string name="pupil_s_country">Pupil\'s Country</string>
     <string name="pick_image">Pick image</string>
+    <string name="back_button">back button</string>
 </resources>

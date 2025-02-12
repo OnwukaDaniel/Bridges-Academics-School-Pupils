@@ -10,11 +10,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bridge.androidtechnicaltest.R
 import com.bridge.androidtechnicaltest.db.Pupil
+import com.bridge.androidtechnicaltest.interfaces.PupilClickCallback
 import com.bumptech.glide.Glide
+import java.io.File
 
 class PupilsRecyclerViewAdapter: RecyclerView.Adapter<PupilsRecyclerViewAdapter.PupilsViewModel>() {
     private lateinit var context: Context
     var dataset: List<Pupil> = ArrayList()
+    lateinit var pupilClickCallback: PupilClickCallback
 
     inner class PupilsViewModel(itemView: View) : RecyclerView.ViewHolder(itemView){
         private var image: ImageView = itemView.findViewById(R.id.pupil_image)
@@ -27,13 +30,14 @@ class PupilsRecyclerViewAdapter: RecyclerView.Adapter<PupilsRecyclerViewAdapter.
 //            if(data.image.isNotBlank()) {
 //
 //            }
+            println("Glide ****************** ${data.image}")
             Glide.with(context)
-                .load("https://media.geeksforgeeks.org/wp-content/uploads/20210101144014/gfglogo.png")
+                .load(File(data.image))
                 .into(image);
             name.text = data.name
             country.text = data.country
-            deletw.setOnClickListener {
-
+            itemView.setOnClickListener {
+                pupilClickCallback.onPupilClick(data)
             }
         }
     }
