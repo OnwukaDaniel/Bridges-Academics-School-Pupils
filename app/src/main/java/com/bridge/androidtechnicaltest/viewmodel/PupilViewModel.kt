@@ -84,13 +84,13 @@ class PupilViewModel @Inject constructor(
     }
 
     @SuppressLint("CheckResult")
-    fun uploadPupil(pupil: Pupil) {
+    fun uploadPupil(pupil: Pupil, showNotice: Boolean = true) {
         val pupilDto = PupilUploadDto.fromPupil(pupil)
         api.addPupil(pupilDto)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                _error.postValue("Pupil added successfully");
+                if(showNotice) _error.postValue("Pupil added successfully");
             }, { error ->
                 println("Error adding pupil: $error")
                 _error.postValue("Error adding pupil: $error")
@@ -111,7 +111,7 @@ class PupilViewModel @Inject constructor(
 
     fun checkCacheAndUpload() {
         for (datum in allPupils.value?: arrayListOf()) {
-            if(!datum.uploaded) uploadPupil(datum)
+            if(!datum.uploaded) uploadPupil(datum, false)
         }
     }
 }
